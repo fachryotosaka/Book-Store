@@ -1,46 +1,96 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include "book.h"
+#include <string.h>
+#include "../include/book.h"
 
-
-int getNewId(FILE* file){
-    int maxId = 0;
-    char line [MAX_LENGTH];
-
-    // Loop setiap line di file
-    while(fgets(line, sizeof(line), file) !=NULL){
-        
-        // Remove spaces/newline
-        line[strcspn(line, "\n")] = '\0';
-
-        // Seperate string, ambil id
-        char *idStr = strtok(line, "#");
-
-        if(idStr != NULL){
-            // Parse id ke int
-            int id = atoi(idStr);
-
-            //Check dan replace max id dengan id terbesar
-            if(maxId < id){
-                maxId = id;
-            } 
-        }
-
+void loadBuku(Buku buku[], int *totalBuku) {
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("File tidak ditemukan, membuat file baru.\n");
+        return;
     }
 
-    //Return id terbesar + 1
-    return ++maxId;
+    int newId = getNewId(file);
+    fclose(file); 
 
+    file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("Gagal membuka file untuk memuat data.\n");
+        return;
+    }
+
+    while (fscanf(file, "%d#%99[^#]#%49[^#]#%f\n", 
+                  &buku[*totalBuku].kode,
+                  buku[*totalBuku].nama, 
+                  buku[*totalBuku].jenis,
+                  &buku[*totalBuku].harga) == 4) {
+        (*totalBuku)++;
+    }
+    fclose(file);
+
+    if (*totalBuku > 0) {
+        buku[0].kode = newId; 
+    }
 }
-// Digunakan untuk fungsi input dan output, seperti printf dan scanf. 
-#include <stdio.h>
-//Digunakan untuk fungsi alokasi memori dan konversi, seperti atoi.
-#include <stdlib.h>
-//Digunakan untuk manipulasi string, seperti strcpy, dan strcmp.
-#include <string.h>
-// Digunakan untuk mengimpor file book.h
-#include "../include/book.h"
+
+void inputBuku(Buku buku[], int *totalBuku) { 
+    if (*totalBuku >= MAX_BOOKS) {
+        printf("Database buku sudah penuh.\n");
+        return;
+    }
+
+    Buku newBuku;
+
+    // Ambil ID baru dari file
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        perror("Gagal membuka file untuk mendapatkan ID baru.\n");
+        newBuku.kode = 1; // Jika file tidak ada, mulai dari 1
+    } else {
+        newBuku.kode = getNewId(file);
+        fclose(file);
+    }
+
+    printf("Nama Buku: ");
+    scanf(" %[^\n]", newBuku.nama);
+    printf("Jenis Buku: ");
+    scanf(" %[^\n]", newBuku.jenis);
+    printf("Harga Buku: ");
+    scanf("%f", &newBuku.harga);
+
+    buku[*totalBuku] = newBuku;
+    (*totalBuku)++;
+
+    printf("Data buku berhasil ditambahkan.\n");
+}
+
+int getNewIdFromCurrentTotal(int totalBuku) {
+    return totalBuku + 1;
+}
+
+void saveBuku(const Buku buku[], int totalBuku) {
+    FILE *file = fopen(FILENAME_BOOK, "a");
+    if (file == NULL) {
+        perror("Gagal membuka file untuk menyimpan data");
+        return;
+    }
+
+    // Simpan data buku terakhir ke file
+    fprintf(file, "%d#%s#%s#%.2f\n", 
+            buku[totalBuku - 1].kode, 
+            buku[totalBuku - 1].nama, 
+            buku[totalBuku - 1].jenis, 
+            buku[totalBuku - 1].harga);
+
+    fclose(file);
+    printf("Data buku berhasil disimpan.\n");
+}
+
+void cleanup(Buku buku[], int totalBuku) {
+    saveBuku(buku, totalBuku);
+    printf("Kembali ke menu utama...\n");
+}
+
 
 // Fungsi untuk menampilkan data dari file history
 void viewHistory() {
@@ -228,4 +278,34 @@ void deleteHistory() {
             return;
         }
     }
+}
+
+int getNewId(FILE* file){
+    int maxId = 0;
+    char line [MAX_LENGTH];
+
+    // Loop setiap line di file
+    while(fgets(line, sizeof(line), file) !=NULL){
+        
+        // Remove spaces/newline
+        line[strcspn(line, "\n")] = '\0';
+
+        // Seperate string, ambil id
+        char *idStr = strtok(line, "#");
+
+        if(idStr != NULL){
+            // Parse id ke int
+            int id = atoi(idStr);
+
+            //Check dan replace max id dengan id terbesar
+            if(maxId < id){
+                maxId = id;
+            } 
+        }
+
+    }
+
+    //Return id terbesar + 1
+    return ++maxId;
+
 }
