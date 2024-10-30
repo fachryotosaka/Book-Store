@@ -1,10 +1,7 @@
-// Digunakan untuk fungsi input dan output, seperti printf dan scanf. 
+
 #include <stdio.h>
-//Digunakan untuk fungsi alokasi memori dan konversi, seperti atoi.
 #include <stdlib.h>
-//Digunakan untuk manipulasi string, seperti strcpy, dan strcmp.
 #include <string.h>
-// Digunakan untuk mengimpor file book.h
 #include "../include/book.h"
 
 // Fungsi untuk menampilkan data dari file history
@@ -193,4 +190,40 @@ void deleteHistory() {
             return;
         }
     }
+}
+=======
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "book.h"
+
+
+int getNewId(FILE* file){
+    int maxId = 0;
+    char line [MAX_LENGTH];
+
+    // Loop setiap line di file
+    while(fgets(line, sizeof(line), file) !=NULL){
+        
+        // Remove spaces/newline
+        line[strcspn(line, "\n")] = '\0';
+
+        // Seperate string, ambil id
+        char *idStr = strtok(line, "#");
+
+        if(idStr != NULL){
+            // Parse id ke int
+            int id = atoi(idStr);
+
+            //Check dan replace max id dengan id terbesar
+            if(maxId < id){
+                maxId = id;
+            } 
+        }
+
+    }
+
+    //Return id terbesar + 1
+    return ++maxId;
+
 }

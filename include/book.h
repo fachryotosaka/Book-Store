@@ -2,19 +2,17 @@
 #ifndef BOOK_H
 #define BOOK_H
 
-// Batas maksimal jumlah buku
 #define MAX_BOOKS 100
-// Batas maksimal jumlah history pembelian
 #define MAX_HISTORY 100
-// Definsi nama file dan menentukan lokasi file buku
-#define FILENAME_BOOK "db/book.txt"
-// Definsi nama file dan menentukan lokasi file history
-#define FILENAME_HISTORY "db/history.txt"
+#define MAX_LENGTH 100
+#define FILENAME_BOOK "../db/book.txt"
+#define FILENAME_HISTORY "../db/history.txt"
+
 
 // Struktur untuk menyimpan informasi data buku
 typedef struct {
     int kode;
-    char nama[100];
+    char nama[MAX_LENGTH];
     char jenis[50];
     float harga;
 } Buku;
