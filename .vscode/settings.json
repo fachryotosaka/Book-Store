@@ -1,1 +1,7 @@
-
+{
+    "files.associations": {
+        "book.h": "c"
+        "book.h": "c",
+        "stdlib.h": "c"
+    }
+}
