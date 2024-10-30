@@ -3,6 +3,95 @@
 #include <string.h>
 #include "../include/book.h"
 
+void loadBuku(Buku buku[], int *totalBuku) {
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("File tidak ditemukan, membuat file baru.\n");
+        return;
+    }
+
+    int newId = getNewId(file);
+    fclose(file); 
+
+    file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("Gagal membuka file untuk memuat data.\n");
+        return;
+    }
+
+    while (fscanf(file, "%d#%99[^#]#%49[^#]#%f\n", 
+                  &buku[*totalBuku].kode,
+                  buku[*totalBuku].nama, 
+                  buku[*totalBuku].jenis,
+                  &buku[*totalBuku].harga) == 4) {
+        (*totalBuku)++;
+    }
+    fclose(file);
+
+    if (*totalBuku > 0) {
+        buku[0].kode = newId; 
+    }
+}
+
+void inputBuku(Buku buku[], int *totalBuku) { 
+    if (*totalBuku >= MAX_BOOKS) {
+        printf("Database buku sudah penuh.\n");
+        return;
+    }
+
+    Buku newBuku;
+
+    // Ambil ID baru dari file
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        perror("Gagal membuka file untuk mendapatkan ID baru.\n");
+        newBuku.kode = 1; // Jika file tidak ada, mulai dari 1
+    } else {
+        newBuku.kode = getNewId(file);
+        fclose(file);
+    }
+
+    printf("Nama Buku: ");
+    scanf(" %[^\n]", newBuku.nama);
+    printf("Jenis Buku: ");
+    scanf(" %[^\n]", newBuku.jenis);
+    printf("Harga Buku: ");
+    scanf("%f", &newBuku.harga);
+
+    buku[*totalBuku] = newBuku;
+    (*totalBuku)++;
+
+    printf("Data buku berhasil ditambahkan.\n");
+}
+
+int getNewIdFromCurrentTotal(int totalBuku) {
+    return totalBuku + 1;
+}
+
+void saveBuku(const Buku buku[], int totalBuku) {
+    FILE *file = fopen(FILENAME_BOOK, "a");
+    if (file == NULL) {
+        perror("Gagal membuka file untuk menyimpan data");
+        return;
+    }
+
+    // Simpan data buku terakhir ke file
+    fprintf(file, "%d#%s#%s#%.2f\n", 
+            buku[totalBuku - 1].kode, 
+            buku[totalBuku - 1].nama, 
+            buku[totalBuku - 1].jenis, 
+            buku[totalBuku - 1].harga);
+
+    fclose(file);
+    printf("Data buku berhasil disimpan.\n");
+}
+
+void cleanup(Buku buku[], int totalBuku) {
+    saveBuku(buku, totalBuku);
+    printf("Kembali ke menu utama...\n");
+}
+
+
 // Fungsi untuk menampilkan data dari file history
 void viewHistory() {
     // Membuka file history dalam mode read

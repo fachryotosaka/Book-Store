@@ -1,11 +1,10 @@
-// Memastikan file ini hanya diikutkan sekali
 #ifndef BOOK_H
 #define BOOK_H
 
 #define MAX_BOOKS 100
 #define MAX_HISTORY 100
 #define MAX_LENGTH 100
-#define FILENAME_BOOK "../db/book.txt"
+#define FILENAME_BOOK "db/book.txt"
 #define FILENAME_HISTORY "../db/history.txt"
 
 
@@ -19,19 +18,26 @@ typedef struct {
 
 // Struktur untuk menyimpan informasi data history pembelian
 typedef struct {
-    int id;           // ID unik untuk setiap transaksi
-    char tanggal[20]; //tanggal pembelian
-    char kode[10]; //kode buku
-    char nama[100]; //nama buku
-    char jenis[50]; //jenis buku
-    float harga; //harga buku
-    int jumlah; //jumlah buku yang dibeli
-    float total; //total harga
+    int id;           
+    char tanggal[20]; 
+    char kode[10]; 
+    char nama[100]; 
+    char jenis[50];
+    float harga; 
+    int jumlah; 
+    float total;
 } History;
 
-void viewHistory(); //deklarasi fungsi viewHistory untuk menampilkan data history
-void deleteHistory(); //deklarasi fungsi viewHistory untuk delete data history
-void listMenu(); //deklarasi fungsi listMenu untuk menampilkan daftar menu yang tersedia
+int getNewId(FILE* file);
+int getNewIdFromCurrentTotal(int totalBuku);
+void loadBuku(Buku buku[], int *totalBuku);
+void inputBuku(Buku buku[], int *totalBuku);
+void saveBuku(const Buku buku[], int totalBuku);
+void cleanup(Buku buku[], int totalBuku);
+
+void viewHistory(); 
+void deleteHistory(); 
+void listMenu(); 
 
 #endif // BOOK_H
 
