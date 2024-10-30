@@ -12,7 +12,7 @@ void viewHistory() {
     // Membuka file history dalam mode read
     FILE *file = fopen(FILENAME_HISTORY, "r");
 
-    // kondisi jika file history tidak berhasil dibuka
+    // Kondisi jika file history tidak berhasil dibuka
     if (file == NULL) {
         printf("Error: Tidak dapat membuka file history\n");
         return;
@@ -22,22 +22,22 @@ void viewHistory() {
     char line[256];
     int index = 1;
 
-    // menampilkan Text untuk header table
+    // Menampilkan teks untuk header tabel
     printf("\n=== HISTORY PEMBELIAN ===\n");
     printf("No  Tanggal         Kode    Nama Buku                   Jenis       Harga    Jumlah  Total\n");
     printf("-----------------------------------------------------------------------------------------------\n");
     
     // Membaca file baris per baris
     while (fgets(line, sizeof(line), file)) {
-        // Menghapus karakter newline(\n) diakhir string
+        // Menghapus karakter newline (\n) di akhir string
         line[strcspn(line, "\n")] = 0;
 
-        // struct sementara untuk menyimpan data per baris
+        // Struct sementara untuk menyimpan data per baris
         History h;
 
-        // Memisahkan data berdasarkan delimeiter '#'
-        sscanf(line, "%[^#]#%[^#]#%[^#]#%[^#]#%f#%d#%f",
-               h.tanggal, h.kode, h.nama, h.jenis, &h.harga, &h.jumlah, &h.total);
+        // Memisahkan data berdasarkan delimiter '#'
+        sscanf(line, "%d#%[^#]#%[^#]#%[^#]#%[^#]#%f#%d#%f",
+               &h.id, h.tanggal, h.kode, h.nama, h.jenis, &h.harga, &h.jumlah, &h.total);
         
         // Menampilkan data dalam format tabel
         printf("%-3d %-14s %-7s %-28s %-10s %-8.0f %-7d %.0f\n",
@@ -50,10 +50,10 @@ void viewHistory() {
 
 // Fungsi untuk menghapus data history
 void deleteHistory() {
-    // membuka file history dengan mode read
+    // Membuka file history dengan mode read
     FILE *file = fopen(FILENAME_HISTORY, "r");
 
-    // kondisi jika file history tidak berhasil dibuka
+    // Kondisi jika file history tidak berhasil dibuka
     if (file == NULL) {
         printf("Error: Tidak dapat membuka file history\n");
         return;
@@ -68,7 +68,7 @@ void deleteHistory() {
     // Mengembalikan pointer file ke awal
     rewind(file);
 
-    // kondisi jika file history kosong
+    // Kondisi jika file history kosong
     if (lineCount == 0) {
         printf("\nTidak ada data history yang tersedia!\n");
         fclose(file);
@@ -79,9 +79,9 @@ void deleteHistory() {
     History histories[MAX_HISTORY];
     int index = 0;
     
-    // looping utama proses delete
+    // Looping utama proses delete
     while (1) {
-        // Menampilkan text untuk header table
+        // Menampilkan teks untuk header tabel
         printf("\n=== DELETE HISTORY ===\n");
         printf("No  Tanggal         Kode    Nama Buku                Jenis       Harga    Jumlah  Total\n");
         printf("--------------------------------------------------------------------------------------\n");
@@ -93,8 +93,8 @@ void deleteHistory() {
         // Membaca dan menampilkan semua data
         while (fgets(line, sizeof(line), file)) {
             line[strcspn(line, "\n")] = 0;
-            sscanf(line, "%[^#]#%[^#]#%[^#]#%[^#]#%f#%d#%f",
-                   histories[index].tanggal, histories[index].kode, 
+            sscanf(line, "%d#%[^#]#%[^#]#%[^#]#%[^#]#%f#%d#%f",
+                   &histories[index].id, histories[index].tanggal, histories[index].kode, 
                    histories[index].nama, histories[index].jenis, 
                    &histories[index].harga, &histories[index].jumlah, 
                    &histories[index].total);
@@ -134,13 +134,13 @@ void deleteHistory() {
             
             choice = atoi(input);
             
-            // kondisi jika user membatalkan hapus data
+            // Kondisi jika user membatalkan hapus data
             if(choice == 0) {
                 printf("Pembatalan penghapusan data...\n");
                 fclose(file);
                 return;
             } else if(choice < 1 || choice > lineCount) {
-                // kondisi jika nomor yang dipilih user tidak ada dalam index
+                // Kondisi jika nomor yang dipilih user tidak ada dalam index
                 printf("Error: Data dengan nomor %d tidak ditemukan!\n", choice);
             } else {
                 valid = 1;
@@ -154,8 +154,8 @@ void deleteHistory() {
         file = fopen(FILENAME_HISTORY, "w");
         for (int i = 0; i < lineCount; i++) {
             if (i != choice - 1) { // Skip data yang dipilih untuk dihapus
-                fprintf(file, "%s#%s#%s#%s#%.0f#%d#%.0f\n",
-                       histories[i].tanggal, histories[i].kode,
+                fprintf(file, "%d#%s#%s#%s#%s#%.0f#%d#%.0f\n",
+                       histories[i].id, histories[i].tanggal, histories[i].kode,
                        histories[i].nama, histories[i].jenis,
                        histories[i].harga, histories[i].jumlah,
                        histories[i].total);
@@ -186,7 +186,7 @@ void deleteHistory() {
             lineCount++;
         }
         
-        // kondisi jika semua data sudah terhapus
+        // Kondisi jika semua data sudah terhapus
         if (lineCount == 0) {
             printf("\nSemua data history telah dihapus!\n");
             fclose(file);

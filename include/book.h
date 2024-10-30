@@ -21,6 +21,7 @@ typedef struct {
 
 // Struktur untuk menyimpan informasi data history pembelian
 typedef struct {
+    int id;           // ID unik untuk setiap transaksi
     char tanggal[20]; //tanggal pembelian
     char kode[10]; //kode buku
     char nama[100]; //nama buku
