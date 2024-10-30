@@ -3,12 +3,13 @@
 
 #define MAX_BOOKS 100
 #define MAX_HISTORY 100
+#define MAX_LENGTH 100
 #define FILENAME_BOOK "../db/book.txt"
 #define FILENAME_HISTORY "../db/history.txt"
 
 typedef struct {
     int kode;
-    char nama[100];
+    char nama[MAX_LENGTH];
     char jenis[50];
     float harga;
 } Buku;

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "book.h"
 
-#define MAX_LENGTH 100
 
 int getNewId(FILE* file){
     int maxId = 0;
@@ -17,7 +17,7 @@ int getNewId(FILE* file){
         // Seperate string, ambil id
         char *idStr = strtok(line, "#");
 
-        if(*idStr != NULL){
+        if(idStr != NULL){
             // Parse id ke int
             int id = atoi(idStr);
 
