@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -191,12 +190,6 @@ void deleteHistory() {
         }
     }
 }
-=======
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "book.h"
-
 
 int getNewId(FILE* file){
     int maxId = 0;
