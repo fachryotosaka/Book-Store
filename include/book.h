@@ -37,7 +37,7 @@ void saveBuku(const Buku buku[], int totalBuku);
 Buku getBukuById(FILE *file,int searchId);
 void getCurrentDate(char *date, size_t dateSize);
 void safeStrCopy(char *dest, const char *src, size_t destSize);
-
+void trimLeadingSpaces(char* str);
 void cleanup(Buku buku[], int totalBuku);
 
 void viewHistory(); 

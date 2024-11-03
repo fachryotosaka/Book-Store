@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include "../include/book.h"
 
 void loadBuku(Buku buku[], int *totalBuku) {
@@ -193,7 +194,8 @@ void beliBuku(){
         printf("Masukan nomor kode buku yang ingin dibeli (0 - %d) atau 0 untuk membatalkan pembelian: ", count);
         scanf("%s", &input);
         
-        int buyId = strtol(input, &endptr, 10);
+        int buyId = 0;
+        buyId = strtol(input, &endptr, 10);
 
         if (*endptr != '\0') {
         printf("Error: Masukan harus berupa angka!\n");
@@ -210,7 +212,8 @@ void beliBuku(){
             continue;
         }
 
-        
+
+        fseek(fileBook, 0, SEEK_SET);
         bukuEntry[entry] = getBukuById(fileBook, buyId); //Mencari data buku berdasarkan id
 
         if (bukuEntry[entry].kode == 0){
@@ -244,7 +247,10 @@ void beliBuku(){
         historyEntry[entry].total = bukuEntry[entry].harga * jumlah;
 
         
+
+        // Validasi melanjutkan pembelian buku
         if(entry < 11){
+            printf("Buku telah dimasukan dalam keranjang\n");
             printf("Apakah anda ingin lanjut membeli buku? (y/n) : ");
             scanf(" %c", &repeat);
         }else{
@@ -279,7 +285,7 @@ void beliBuku(){
     // Validasi konfirmasi
     if(confirm == 'Y' || confirm == 'y'){
         
-        fileHistory = fopen(FILENAME_HISTORY, "w");// Re-open file dengan write mode
+        fileHistory = fopen(FILENAME_HISTORY, "a");// Re-open file dengan write mode
         if (fileHistory == NULL) {
             printf("Error: Tidak dapat membuka file history\n");
             fclose(fileBook);  
@@ -299,9 +305,12 @@ void beliBuku(){
                         historyEntry[i].jumlah,
                         historyEntry[i].total) < 0) {
                 // Handle error jika gagal menulis file
-                perror("Error menulis history pada file");
-                break;
+                perror("Error menulis history pada file\n");
+                fclose(fileBook);
+                fclose(fileHistory);
+                return;
             }
+            fflush(fileHistory);
         }
     }else{
         printf("Pembelian dibatalkan\n");
@@ -320,6 +329,9 @@ void beliBuku(){
 
 void DeleteBook() {
     int kode_to_delete;
+
+    view_databuku();
+
     printf("\nMasukkan kode buku yang ingin dihapus (0 untuk batal): ");
     scanf("%d", &kode_to_delete);
 

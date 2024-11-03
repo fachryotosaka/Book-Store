@@ -16,9 +16,9 @@ int main() {
         printf("\n=== MENU ===\n");
         printf("1. Input\n");
         printf("2. View History\n");
-        printf("3. view_databuku\n");
+        printf("3. View Data buku\n");
         printf("4. Delete History\n");
-        printf("5. Delete Book\n");
+        printf("5. Delete Buku\n");
         printf("7. Beli Buku\n");
         printf("8. Exit\n");
         printf("Silahkan pilih menu (1-8): ");
@@ -42,16 +42,16 @@ int main() {
                 // Memaggail fungsi yang memperoses delete buku
                 DeleteBook();
                 break;
-            case 7:
+            case 6:
                 beliBuku();
             //Menu untuk keluar dari program book store
-            case 8:
+            case 7:
                 cleanup(daftarBuku, totalBuku);
                 break;
             //kondisi default jika pilihan user diluar dari pilhan angka 1-8
             default:
                 printf("Pilihan tidak valid!\n");
         }
-    } while (choice != 8); // Loop hingga pengguna memilih angka 8 untuk keluar dari program
+    } while (choice != 7); // Loop hingga pengguna memilih angka 8 untuk keluar dari program
     return 0;
 }
