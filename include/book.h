@@ -4,6 +4,7 @@
 #define MAX_BOOKS 100
 #define MAX_HISTORY 100
 #define MAX_LENGTH 100
+#define MAX_ENTRY 10
 #define FILENAME_BOOK "db/book.txt"
 #define FILENAME_HISTORY "../db/history.txt"
 

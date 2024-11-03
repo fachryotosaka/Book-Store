@@ -18,6 +18,7 @@ int main() {
         printf("2. View History\n");
         printf("4. Delete History\n");
         printf("5. Delete Book\n");
+        printf("7. Beli Buku\n");
         printf("8. Exit\n");
         printf("Silahkan pilih menu (1-8): ");
 
@@ -31,11 +32,11 @@ int main() {
             case 2:
                 viewHistory();
                 break;
-            // Menu untuk delete data history
             case 4:
-                // Memaggail fungsi yang memperoses delete data history
                 deleteHistory();
                 break;
+            case 7:
+                beliBuku();
             //Menu untuk keluar dari program book store
             case 8:
                 cleanup(daftarBuku, totalBuku);

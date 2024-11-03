@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "../include/book.h"
 
 void loadBuku(Buku buku[], int *totalBuku) {
@@ -155,9 +156,10 @@ void beliBuku(){
 
     // Menghitung Jumlah data Buku
     int count = 0;
+
     while(fgets(line, sizeof(line),fileBook)){
         count++;
-    }
+    } fseek(fileBook, 0, SEEK_SET); //Reset pointer file ke awal
 
     FILE *fileHistory = fopen(FILENAME_HISTORY, "a+");
     if (fileHistory == NULL) {
@@ -174,17 +176,17 @@ void beliBuku(){
     return;
     }
     
-
+    
+    int entry = 0;
+    Buku bukuEntry[MAX_ENTRY];
+    History historyEntry[MAX_ENTRY];
     char repeat ='y';
 
     // LOOP OPTION BELI
     do {
 
-        
-
         view_databuku();
 
-        
         char input[10];
         char *endptr;
 
@@ -198,34 +200,107 @@ void beliBuku(){
         continue;
         }
 
-        if(input == 0){
+        if(buyId == 0){
             printf("Pembelian dibatalkan \n");
             fclose(fileBook);
             fclose(fileHistory);
             return; 
-        }else if (input > count){
+        }else if (buyId > count){
             printf("Data buku tidak ditemukan \n");
             continue;
         }
 
+        
+        bukuEntry[entry] = getBukuById(fileBook, buyId); //Mencari data buku berdasarkan id
+
+        if (bukuEntry[entry].kode == 0){
+            printf("Error : Data buku tidak ditemukan");
+            continue;
+        }
+
+
         printf("Masukan jumlah yang ingin dibeli : ");
         scanf("%s", &input);
 
-        int jumlah= strtol(input, &endptr, 10);
+        int jumlah = strtol(input, &endptr, 10);
         
         if (*endptr != '\0') {
         printf("Error: Masukan harus berupa angka!\n");
         continue;
         }
 
-    }while(repeat !="n" || repeat !="N");
+        char date[11];
+        getCurrentDate(date, sizeof(date)); // Get date dan simpan pada variable date
+        
 
+        //Assign setiap value ke dalam struct History
+        historyEntry[entry].id = getNewId(fileHistory);
+        safeStrCopy(historyEntry[entry].tanggal, date, sizeof(historyEntry[entry].tanggal));
+        safeStrCopy(historyEntry[entry].kode, bukuEntry[entry].kode, sizeof(historyEntry[entry].kode));
+        safeStrCopy(historyEntry[entry].nama, bukuEntry[entry].nama, sizeof(historyEntry[entry].nama));
+        safeStrCopy(historyEntry[entry].jenis, bukuEntry[entry].jenis, sizeof(historyEntry[entry].jenis));
+        historyEntry[entry].harga = bukuEntry[entry].harga;
+        historyEntry[entry].jumlah = jumlah;
+        historyEntry[entry].total = bukuEntry[entry].harga * jumlah;
 
-    History historyEntry[MAX_HISTORY];
+        
+        if(entry < 11){
+            printf("Apakah anda ingin lanjut membeli buku? (y/n) : ");
+            scanf("%1s", repeat);
+        }else{
+            printf("Keranjang anda sudah penuh\n");
+            repeat = 'n';
+            break;
+        }
+        entry++;
+    }while(repeat !='n' && repeat !='N');
 
+    printf("\n=== KERANJANG PEMBELIAN ===\n");
+    printf("No  Tanggal         Kode    Nama Buku                   Jenis       Harga    Jumlah  Total\n");
+    printf("-----------------------------------------------------------------------------------------------\n");
+    
+    for(int i = 0; i<entry; i++){
+        printf("%-3d %-14s %-7s %-28s %-10s %-8.0f %-7d %.0f\n",
+               i+1, 
+               historyEntry[i].tanggal, 
+               historyEntry[i].kode, 
+               historyEntry[i].nama, 
+               historyEntry[i].jenis, 
+               historyEntry[i].harga, 
+               historyEntry[i].jumlah, 
+               historyEntry[i].total);
+    }
 
+    char confirm[1];
 
+    printf("Apakah anda ingin mengkonfirmasi pembelian? (y/n) : ");
+    scanf("%1s", confirm);
 
+    // Validasi konfirmasi
+    if(confirm != 'Y' && confirm != 'y'){
+        printf("Pembelian dibatalkan");
+        fclose(fileBook);
+        fclose(fileHistory);
+        return;
+    }
+
+    // Save data setiap history
+    for(int i = 0; i < entry; i++){
+        fprintf(fileHistory, "%d#%s#%s#%s#%s#%.0f#%d#%.0f\n",
+            historyEntry[i].id, 
+            historyEntry[i].tanggal, 
+            historyEntry[i].kode,
+            historyEntry[i].nama, 
+            historyEntry[i].jenis,
+            historyEntry[i].harga, 
+            historyEntry[i].jumlah,
+            historyEntry[i].total);
+    }
+    
+    printf("Buku berhasil di beli");
+    fclose(fileBook);
+    fclose(fileHistory);
+    return;
 }
 
 
@@ -480,12 +555,10 @@ int getNewId(FILE* file){
 }
 
 
-Buku getBukuById(int searchId){
+Buku getBukuById(FILE *file,int searchId){
     int id;
     char line[MAX_LENGTH];
     Buku b = {0};
-    
-    FILE *file = fopen(FILENAME_BOOK, "r");
     
     if (file == NULL) {
     printf("Error: Tidak dapat membuka file buku\n");
@@ -495,7 +568,6 @@ Buku getBukuById(int searchId){
     while(fgets(line, sizeof(line), file)){
 
         line[strcspn(line, "\n")] = '\0';
-
         char *idStr = strtok(line, "#");
 
         if (idStr == NULL){
@@ -513,11 +585,24 @@ Buku getBukuById(int searchId){
                 b.jenis, 
                 &b.harga);
             
-            fclose(file);
             return b; //Return buku yang ditemukan
         }
     }
     
     // return object buku default
     return b;
+}
+
+void getCurrentDate(char *date, size_t dateSize) {
+    time_t now = time(NULL); // Ambil tanggal sekrang
+    struct tm *localTime = localtime(&now); // ubah ke waktu lokal
+
+    // Format tanggal ke "YYYY-MM-DD" dan simpan pada pointer date
+    strftime(date, dateSize, "%Y-%m-%d", localTime);
+}
+
+//Helper untuk menambahkan null terminator
+void safeStrCopy(char *dest, const char *src, size_t destSize) {
+    strncpy(dest, src, destSize - 1);       
+    dest[destSize - 1] = '\0'; 
 }
