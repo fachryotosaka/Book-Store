@@ -91,6 +91,56 @@ void cleanup(Buku buku[], int totalBuku) {
     printf("Kembali ke menu utama...\n");
 }
 
+void view_databuku() {
+    
+    // Membuka file book dalam mode read
+    FILE *file = fopen(FILENAME_BOOK, "r");
+
+    if (file == NULL) {
+        printf("Error: Tidak dapat membuka file history\n");
+        return;
+    }
+
+    // Variabel untuk membaca data per baris
+    char line[MAX_LENGTH];
+    int index = 1;
+
+    // Menampilkan teks untuk header tabel
+    printf("\n=== DAFTAR BUKU ===\n");
+    printf("No  Kode    Nama Buku                   Jenis       Harga\n");
+    printf("------------------------------------------------------------\n");
+
+
+    // Membaca file baris per baris
+    while (fgets(line, sizeof(line), file)) {
+
+        // Menghapus karakter newline (\n) di akhir string
+        line[strcspn(line, "\n")] = 0;
+
+        // Struct sementara untuk menyimpan data per baris
+        Buku buku;
+
+        // Memisahkan data berdasarkan delimiter '#'
+        sscanf(line, "%d#%99[^#]#%49[^#]#%f", 
+            &buku.kode, 
+            buku.nama, 
+            buku.jenis, 
+            &buku.harga);
+        
+        // Menampilkan data dalam format tabel
+        printf("%-3d %-7d %-28s %-10s %.2f\n",
+            index++, 
+            buku.kode, 
+            buku.nama, 
+            buku.jenis, 
+            buku.harga);
+    }
+    
+    // Menutup file setelah selesai dibaca
+    fclose(file);
+    return;
+}
+
 
 // Fungsi untuk menampilkan data dari file history
 void viewHistory() {
