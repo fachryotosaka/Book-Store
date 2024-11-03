@@ -141,6 +141,94 @@ void view_databuku() {
     return;
 }
 
+
+void beliBuku(){
+    
+    char line[MAX_LENGTH];
+    FILE *fileBook = fopen(FILENAME_BOOK, "r");
+    
+
+    if (fileBook == NULL) {
+    printf("Error: Tidak dapat membuka file buku\n");
+    return;  
+    }
+
+    // Menghitung Jumlah data Buku
+    int count = 0;
+    while(fgets(line, sizeof(line),fileBook)){
+        count++;
+    }
+
+    FILE *fileHistory = fopen(FILENAME_HISTORY, "a+");
+    if (fileHistory == NULL) {
+        printf("Error: Tidak dapat membuka file history\n");
+        fclose(fileBook);  
+        return;
+    }
+
+    // Validasi data buku memiliki data atau tidak, abort if not
+    if (fgets(line, sizeof(line), fileBook) == NULL) {
+    printf("\nTidak ada data Buku yang tersedia!\n");
+    fclose(fileBook);
+    fclose(fileHistory);
+    return;
+    }
+    
+
+    char repeat ='y';
+
+    // LOOP OPTION BELI
+    do {
+
+        
+
+        view_databuku();
+
+        
+        char input[10];
+        char *endptr;
+
+        printf("Masukan nomor buku yang ingin dibeli (0 - %d) atau 0 untuk membatalkan pembelian: ", count);
+        scanf("%s", &input);
+        
+        int buyId = strtol(input, &endptr, 10);
+
+        if (*endptr != '\0') {
+        printf("Error: Masukan harus berupa angka!\n");
+        continue;
+        }
+
+        if(input == 0){
+            printf("Pembelian dibatalkan \n");
+            fclose(fileBook);
+            fclose(fileHistory);
+            return; 
+        }else if (input > count){
+            printf("Data buku tidak ditemukan \n");
+            continue;
+        }
+
+        printf("Masukan jumlah yang ingin dibeli : ");
+        scanf("%s", &input);
+
+        int jumlah= strtol(input, &endptr, 10);
+        
+        if (*endptr != '\0') {
+        printf("Error: Masukan harus berupa angka!\n");
+        continue;
+        }
+
+    }while(repeat !="n" || repeat !="N");
+
+
+    History historyEntry[MAX_HISTORY];
+
+
+
+
+}
+
+
 void DeleteBook() {
 // Prompt untuk menghapus buku
     int kode_to_delete;
@@ -389,4 +477,47 @@ int getNewId(FILE* file){
     //Return id terbesar + 1
     return ++maxId;
 
+}
+
+
+Buku getBukuById(int searchId){
+    int id;
+    char line[MAX_LENGTH];
+    Buku b = {0};
+    
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    
+    if (file == NULL) {
+    printf("Error: Tidak dapat membuka file buku\n");
+    return b;  
+    }
+
+    while(fgets(line, sizeof(line), file)){
+
+        line[strcspn(line, "\n")] = '\0';
+
+        char *idStr = strtok(line, "#");
+
+        if (idStr == NULL){
+            continue; // Skip line yang tidak memiliki id
+        }
+
+        // Parse id ke int
+        id = atoi(idStr);
+
+        // Membentuk object buku dengan id yang sesuai
+        if(id == searchId){
+            sscanf(line, "%d#%99[^#]#%49[^#]#%f", 
+                &b.kode, 
+                b.nama, 
+                b.jenis, 
+                &b.harga);
+            
+            fclose(file);
+            return b; //Return buku yang ditemukan
+        }
+    }
+    
+    // return object buku default
+    return b;
 }
