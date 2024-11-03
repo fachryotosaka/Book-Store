@@ -17,7 +17,7 @@ int main() {
         printf("1. Input\n");
         printf("2. View History\n");
         printf("4. Delete History\n");
-        printf("5. Delete Book\n");
+        printf("5. DeleteBook\n");
         printf("8. Exit\n");
         printf("Silahkan pilih menu (1-8): ");
 
