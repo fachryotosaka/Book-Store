@@ -39,7 +39,7 @@ int main() {
             // Menu untuk delete buku
             case 5:
                 // Memaggail fungsi yang memperoses delete buku
-                deletebook();
+                DeleteBook();
                 break;
             //Menu untuk keluar dari program book store
             case 8:
