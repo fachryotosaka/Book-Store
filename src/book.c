@@ -140,7 +140,37 @@ void view_databuku() {
     fclose(file);
     return;
 }
+void
+// Prompt untuk menghapus buku
+    int kode_to_delete;
+    printf("\nMasukkan kode buku yang ingin dihapus (0 untuk batal): ");
+    scanf("%d", &kode_to_delete);
 
+    if (kode_to_delete == 0) {
+        printf("Penghapusan dibatalkan.\n");
+        return;
+    }
+
+    // Menyimpan kembali data yang tidak terhapus ke file
+    file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("Error: Tidak dapat membuka file untuk menulis\n");
+        return;
+    }
+
+    for (int i = 0; i < index; i++) {
+        if (books[i].kode != kode_to_delete) {
+            fprintf(file, "%d#%s#%s#%.2f\n", 
+                    books[i].kode, 
+                    books[i].nama, 
+                    books[i].jenis, 
+                    books[i].harga);
+        }
+    }
+
+    fclose(file);
+    printf("Buku dengan kode %d berhasil dihapus.\n", kode_to_delete);
+}
 
 // Fungsi untuk menampilkan data dari file history
 void viewHistory() {
