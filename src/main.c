@@ -16,6 +16,7 @@ int main() {
         printf("\n=== MENU ===\n");
         printf("1. Input\n");
         printf("2. View History\n");
+        printf("3. view_databuku\n");
         printf("4. Delete History\n");
         printf("5. Delete Book\n");
         printf("7. Beli Buku\n");
@@ -31,6 +32,8 @@ int main() {
                 break;
             case 2:
                 viewHistory();
+            case 3:
+                view_databuku(); // Memanggil fungsi untuk melihat data buku
                 break;
             case 4:
                 deleteHistory();
