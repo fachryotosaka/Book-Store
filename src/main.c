@@ -19,9 +19,9 @@ int main() {
         printf("3. View Data buku\n");
         printf("4. Delete History\n");
         printf("5. Delete Buku\n");
-        printf("7. Beli Buku\n");
-        printf("8. Exit\n");
-        printf("Silahkan pilih menu (1-8): ");
+        printf("6. Beli Buku\n");
+        printf("7. Exit\n");
+        printf("Silahkan pilih menu (1-7): ");
 
         scanf("%d", &choice);
 
