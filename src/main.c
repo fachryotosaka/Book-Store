@@ -35,6 +35,10 @@ int main() {
             case 4:
                 deleteHistory();
                 break;
+            case 5:
+                // Memaggail fungsi yang memperoses delete buku
+                DeleteBook();
+                break;
             case 7:
                 beliBuku();
             //Menu untuk keluar dari program book store

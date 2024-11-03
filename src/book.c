@@ -305,7 +305,6 @@ void beliBuku(){
 
 
 void DeleteBook() {
-// Prompt untuk menghapus buku
     int kode_to_delete;
     printf("\nMasukkan kode buku yang ingin dihapus (0 untuk batal): ");
     scanf("%d", &kode_to_delete);
@@ -315,14 +314,33 @@ void DeleteBook() {
         return;
     }
 
-    // Menyimpan kembali data yang tidak terhapus ke file
-    file = fopen(FILENAME_BOOK, "r");
+    FILE *file = fopen(FILENAME_BOOK, "r");
+    if (file == NULL) {
+        printf("Error: Tidak dapat membuka file untuk membaca\n");
+        return;
+    }
+
+    Buku books[MAX_BOOKS];
+    int totalBooks = 0;
+
+    // membaca buku kedalam array
+    while (fscanf(file, "%d#%99[^#]#%49[^#]#%f\n", 
+                  &books[totalBooks].kode,
+                  books[totalBooks].nama, 
+                  books[totalBooks].jenis,
+                  &books[totalBooks].harga) == 4) {
+        totalBooks++;
+    }
+    fclose(file);
+
+    // menuliskan semua buku kecuali buku yang mau dihapus
+    file = fopen(FILENAME_BOOK, "w");
     if (file == NULL) {
         printf("Error: Tidak dapat membuka file untuk menulis\n");
         return;
     }
 
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < totalBooks; i++) {
         if (books[i].kode != kode_to_delete) {
             fprintf(file, "%d#%s#%s#%.2f\n", 
                     books[i].kode, 
@@ -331,10 +349,10 @@ void DeleteBook() {
                     books[i].harga);
         }
     }
-
     fclose(file);
     printf("Buku dengan kode %d berhasil dihapus.\n", kode_to_delete);
 }
+
 
 // Fungsi untuk menampilkan data dari file history
 void viewHistory() {
