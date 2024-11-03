@@ -140,7 +140,8 @@ void view_databuku() {
     fclose(file);
     return;
 }
-void
+
+void deleteBook() {
 // Prompt untuk menghapus buku
     int kode_to_delete;
     printf("\nMasukkan kode buku yang ingin dihapus (0 untuk batal): ");
