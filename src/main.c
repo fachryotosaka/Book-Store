@@ -30,6 +30,8 @@ int main() {
                 break;
             case 2:
                 viewHistory();
+            case 3:
+                view_databuku(); // Memanggil fungsi untuk melihat data buku
                 break;
             // Menu untuk delete data history
             case 4:
