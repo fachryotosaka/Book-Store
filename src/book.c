@@ -190,7 +190,7 @@ void beliBuku(){
         char input[10];
         char *endptr;
 
-        printf("Masukan nomor buku yang ingin dibeli (0 - %d) atau 0 untuk membatalkan pembelian: ", count);
+        printf("Masukan nomor kode buku yang ingin dibeli (0 - %d) atau 0 untuk membatalkan pembelian: ", count);
         scanf("%s", &input);
         
         int buyId = strtol(input, &endptr, 10);
@@ -214,7 +214,7 @@ void beliBuku(){
         bukuEntry[entry] = getBukuById(fileBook, buyId); //Mencari data buku berdasarkan id
 
         if (bukuEntry[entry].kode == 0){
-            printf("Error : Data buku tidak ditemukan");
+            printf("Error : Data buku tidak ditemukan\n");
             continue;
         }
 
@@ -235,8 +235,8 @@ void beliBuku(){
 
         //Assign setiap value ke dalam struct History
         historyEntry[entry].id = getNewId(fileHistory);
-        safeStrCopy(historyEntry[entry].tanggal, date, sizeof(historyEntry[entry].tanggal));
-        safeStrCopy(historyEntry[entry].kode, bukuEntry[entry].kode, sizeof(historyEntry[entry].kode));
+        safeStrCopy(historyEntry[entry].tanggal, date, sizeof(historyEntry[entry].tanggal));// Memastikan adanya terminator null di akhir string
+        snprintf(historyEntry[entry].kode, sizeof(historyEntry[entry].kode), "%d", bukuEntry[entry].kode); // Mengubah int ke string
         safeStrCopy(historyEntry[entry].nama, bukuEntry[entry].nama, sizeof(historyEntry[entry].nama));
         safeStrCopy(historyEntry[entry].jenis, bukuEntry[entry].jenis, sizeof(historyEntry[entry].jenis));
         historyEntry[entry].harga = bukuEntry[entry].harga;
@@ -246,7 +246,7 @@ void beliBuku(){
         
         if(entry < 11){
             printf("Apakah anda ingin lanjut membeli buku? (y/n) : ");
-            scanf("%1s", repeat);
+            scanf(" %c", &repeat);
         }else{
             printf("Keranjang anda sudah penuh\n");
             repeat = 'n';
@@ -271,33 +271,47 @@ void beliBuku(){
                historyEntry[i].total);
     }
 
-    char confirm[1];
+    char confirm;
 
     printf("Apakah anda ingin mengkonfirmasi pembelian? (y/n) : ");
-    scanf("%1s", confirm);
+    scanf(" %c", &confirm);
 
     // Validasi konfirmasi
-    if(confirm != 'Y' && confirm != 'y'){
-        printf("Pembelian dibatalkan");
+    if(confirm == 'Y' || confirm == 'y'){
+        
+        fileHistory = fopen(FILENAME_HISTORY, "w");// Re-open file dengan write mode
+        if (fileHistory == NULL) {
+            printf("Error: Tidak dapat membuka file history\n");
+            fclose(fileBook);  
+            fclose(fileHistory);  
+            return;
+        }
+
+        // Save data setiap history
+        for(int i = 0; i < entry; i++){
+            if (fprintf(fileHistory, "%d#%s#%s#%s#%s#%.0f#%d#%.0f\n",
+                        historyEntry[i].id, 
+                        historyEntry[i].tanggal, 
+                        historyEntry[i].kode,
+                        historyEntry[i].nama, 
+                        historyEntry[i].jenis,
+                        historyEntry[i].harga, 
+                        historyEntry[i].jumlah,
+                        historyEntry[i].total) < 0) {
+                // Handle error jika gagal menulis file
+                perror("Error menulis history pada file");
+                break;
+            }
+        }
+    }else{
+        printf("Pembelian dibatalkan\n");
         fclose(fileBook);
         fclose(fileHistory);
         return;
     }
 
-    // Save data setiap history
-    for(int i = 0; i < entry; i++){
-        fprintf(fileHistory, "%d#%s#%s#%s#%s#%.0f#%d#%.0f\n",
-            historyEntry[i].id, 
-            historyEntry[i].tanggal, 
-            historyEntry[i].kode,
-            historyEntry[i].nama, 
-            historyEntry[i].jenis,
-            historyEntry[i].harga, 
-            historyEntry[i].jumlah,
-            historyEntry[i].total);
-    }
     
-    printf("Buku berhasil di beli");
+    printf("Buku berhasil di beli\n");
     fclose(fileBook);
     fclose(fileHistory);
     return;
@@ -572,43 +586,57 @@ int getNewId(FILE* file){
 
 }
 
+// Helper untuk memotong spasi
+void trimLeadingSpaces(char* str) {
+    char* p = str;
+    while (isspace((unsigned char)*p)) p++;
+    memmove(str, p, strlen(p) + 1);
+}
 
-Buku getBukuById(FILE *file,int searchId){
+Buku getBukuById(FILE *file, int searchId) {
     int id;
     char line[MAX_LENGTH];
-    Buku b = {0};
-    
+    Buku b = {0}; 
+
     if (file == NULL) {
-    printf("Error: Tidak dapat membuka file buku\n");
-    return b;  
+        printf("Error: Tidak dapat membuka file buku\n");
+        return b;  
     }
 
-    while(fgets(line, sizeof(line), file)){
-
+    while (fgets(line, sizeof(line), file)) {
+        // Remove newline character
         line[strcspn(line, "\n")] = '\0';
-        char *idStr = strtok(line, "#");
 
-        if (idStr == NULL){
-            continue; // Skip line yang tidak memiliki id
+
+        char *idStr = strtok(line, "#");
+        if (idStr == NULL) {
+            continue; // Skip line tanpa id
         }
 
-        // Parse id ke int
+        // parse id ke string
         id = atoi(idStr);
+        
 
-        // Membentuk object buku dengan id yang sesuai
-        if(id == searchId){
-            sscanf(line, "%d#%99[^#]#%49[^#]#%f", 
-                &b.kode, 
-                b.nama, 
-                b.jenis, 
-                &b.harga);
-            
-            return b; //Return buku yang ditemukan
+        // memotong sisa line dari spasi
+        char *remainingLine = strtok(NULL, ""); 
+        if (remainingLine) {
+            trimLeadingSpaces(remainingLine);
+        }
+
+        // Check id sesuai id search
+        if (id == searchId) {
+            if (sscanf(remainingLine, "%99[^#]#%49[^#]#%f", 
+                       b.nama, 
+                       b.jenis, 
+                       &b.harga) == 3) { // Expecting 3 field
+                b.kode = id; // Set the kode
+               
+                return b; // Return buku sesuai id
+            }
         }
     }
-    
-    // return object buku default
-    return b;
+
+    return b; // Return default book (empty)
 }
 
 void getCurrentDate(char *date, size_t dateSize) {

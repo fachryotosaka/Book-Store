@@ -34,11 +34,17 @@ int getNewIdFromCurrentTotal(int totalBuku);
 void loadBuku(Buku buku[], int *totalBuku);
 void inputBuku(Buku buku[], int *totalBuku);
 void saveBuku(const Buku buku[], int totalBuku);
+Buku getBukuById(FILE *file,int searchId);
+void getCurrentDate(char *date, size_t dateSize);
+void safeStrCopy(char *dest, const char *src, size_t destSize);
+
 void cleanup(Buku buku[], int totalBuku);
 
 void viewHistory(); 
 void deleteHistory(); 
 void listMenu(); 
+void DeleteBook();
+void beliBuku();
 
 #endif // BOOK_H
 
