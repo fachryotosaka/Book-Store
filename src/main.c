@@ -16,6 +16,7 @@ int main() {
         printf("\n=== MENU ===\n");
         printf("1. Input\n");
         printf("2. View History\n");
+        printf("3. view_databuku\n");
         printf("4. Delete History\n");
         printf("8. Exit\n");
         printf("Silahkan pilih menu (1-8): ");
