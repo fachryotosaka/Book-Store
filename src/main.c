@@ -36,6 +36,11 @@ int main() {
                 // Memaggail fungsi yang memperoses delete data history
                 deleteHistory();
                 break;
+            // Menu untuk delete buku
+            case 5:
+                // Memaggail fungsi yang memperoses delete buku
+                deletebook();
+                break;
             //Menu untuk keluar dari program book store
             case 8:
                 cleanup(daftarBuku, totalBuku);
